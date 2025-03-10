@@ -1,0 +1,82 @@
+<head>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<div class="split-container">
+  <!-- Left panel for candlestick chart -->
+  <div class="candlestick-panel">
+    <canvas id="stockCanvas"></canvas>
+  </div>
+
+  <!-- Right panel for signup form -->
+  <div class="form-panel">
+    <div class="signup-container">
+      <h2>GREEN SCREENER</h2>
+      <p>INVEST IN SUSTAINABLE, ETHICAL STOCKS WITH GREEN SCREENER.</p>
+
+      <form (ngSubmit)="onSubmit()" #signupForm="ngForm">
+        <!-- First Name -->
+        <div class="form-group">
+          <input
+            type="text"
+            name="firstName"
+            placeholder="FIRST NAME"
+            [(ngModel)]="user.firstName"
+            required
+          />
+        </div>
+
+        <!-- Last Name -->
+        <div class="form-group">
+          <input
+            type="text"
+            name="lastName"
+            placeholder="LAST NAME"
+            [(ngModel)]="user.lastName"
+            required
+          />
+        </div>
+
+        <!-- Email -->
+        <div class="form-group">
+          <input
+            type="email"
+            name="email"
+            placeholder="EMAIL ADDRESS"
+            [(ngModel)]="user.email"
+            required
+          />
+        </div>
+
+        <!-- Password -->
+        <div class="form-group">
+          <input
+            type="password"
+            name="password"
+            placeholder="PASSWORD"
+            [(ngModel)]="user.password"
+            required
+            minlength="6"
+          />
+        </div>
+
+        <!-- Confirm Password -->
+        <div class="form-group">
+          <input
+            type="password"
+            name="confirmPassword"
+            placeholder="CONFIRM PASSWORD"
+            [(ngModel)]="user.confirmPassword"
+            required
+          />
+        </div>
+
+        <button type="submit" class="signup-btn">Sign Up</button>
+      </form>
+
+      <p class="login-link">
+        Already have an account?
+        <a href="#">Log in</a>
+      </p>
+    </div>
+  </div>
+</div>
