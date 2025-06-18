@@ -1,5 +1,6 @@
 // src/app/pages/register/register.component.ts
 
+import { AuthService, RegisterRequest } from '../../services/auth.service';
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
@@ -48,7 +49,8 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
   private lastCandleTime = 0;
   private animationStarted = false;
 
-  constructor(private fb: FormBuilder) {
+  constructor(private fb: FormBuilder,
+    private authService: AuthService) {
     // Initialize the showPassword property
     this.showPassword = false;
     
@@ -445,19 +447,24 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
     this.showPassword = !this.showPassword;
   }
 
-  /** Handle form submission */
-  onSubmit() {
-    if (this.form.valid) {
-      this.isLoading = true;
-      
-      // Simulate API call
-      setTimeout(() => {
-        console.log('Registration data:', this.form.value);
-        this.isLoading = false;
-        // TODO: call your AuthService.register(this.form.value)
-      }, 2000);
-    } else {
+  onSubmit(): void {
+    if (!this.form.valid) {
       this.form.markAllAsTouched();
+      return;
     }
+    this.isLoading = true;
+    const req = this.form.value as RegisterRequest;
+    this.authService.register(req).subscribe({
+      next: user => {
+        console.log('Registered:', user);
+        this.isLoading = false;
+        // TODO: navigate to dashboard
+      },
+      error: err => {
+        console.error('Registration failed', err);
+        this.isLoading = false;
+      }
+    });
   }
+  
 }
