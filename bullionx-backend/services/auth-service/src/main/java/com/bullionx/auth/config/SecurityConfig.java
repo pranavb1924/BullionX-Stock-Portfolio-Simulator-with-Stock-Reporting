@@ -1,35 +1,42 @@
 package com.bullionx.auth.config;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor         // lets Spring inject JwtAuthFilter
 public class SecurityConfig {
 
-    /** Hashing algo used everywhere */
+    private final JwtAuthFilter jwtAuthFilter;   // <-- new JWT filter
+
+    /* Password hashing bean (BCrypt) */
     @Bean
     PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    /** Minimal chain: allow auth endpoints, lock everything else (for now) */
+    /* Main security rules */
     @Bean
-    SecurityFilterChain defaultChain(HttpSecurity http) throws Exception {
+    SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable())                // not needed for pure JSON API
-                .sessionManagement(sm -> sm.disable())       // stateless
+                .cors(cors -> {})                    // ← add this line
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(sm -> sm.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
                         .anyRequest().authenticated()
                 )
-                .httpBasic(Customizer.withDefaults());        // temporary fallback; will replace with JWT filter
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+
+        /* No httpBasic() or formLogin() needed now that we rely on JWT */
         return http.build();
     }
 }

@@ -34,33 +34,7 @@
           </p>
           
           <form [formGroup]="form" (ngSubmit)="onSubmit()" class="register-form">
-            <p class="form-instruction">
-              Enter your first and last name as they appear on your government ID.
-            </p>
-  
-            <div class="name-row">
-              <div class="form-group">
-                <input
-                  id="firstName"
-                  formControlName="firstName"
-                  type="text"
-                  class="form-input"
-                  placeholder="First name"
-                  [class.error]="form.get('firstName')?.touched && form.get('firstName')?.invalid"
-                />
-              </div>
-              <div class="form-group">
-                <input
-                  id="lastName"
-                  formControlName="lastName"
-                  type="text"
-                  class="form-input"
-                  placeholder="Last name"
-                  [class.error]="form.get('lastName')?.touched && form.get('lastName')?.invalid"
-                />
-              </div>
-            </div>
-  
+            
             <div class="form-group">
               <input
                 id="email"

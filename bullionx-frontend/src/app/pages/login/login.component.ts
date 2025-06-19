@@ -1,3 +1,5 @@
+// src/app/pages/register/register.component.ts
+
 import { AuthService} from '../../core/services/auth.service';
 import { RegisterRequest } from '../../core/models/auth.models';
 
@@ -22,13 +24,13 @@ interface Candle {
 }
 
 @Component({
-  selector: 'app-register',
+  selector: 'app-login',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
-  templateUrl: './register.component.html',
+  templateUrl: './login.component.html',
   styleUrls: ['../../../styles/auth-card.css']
 })
-export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
+export class LoginComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('candlestickCanvas', { static: false }) canvasRef!: ElementRef<HTMLCanvasElement>;
   
   form: FormGroup;
@@ -56,8 +58,6 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
     this.showPassword = false;
     
     this.form = this.fb.group({
-      firstName: ['', Validators.required],
-      lastName: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(10)]]
     });
@@ -117,13 +117,14 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
     const numCandles = Math.floor(width / candleSpacing) + 10;
     
     for (let i = 0; i < numCandles; i++) {
-
+      // Create more dramatic price movements with longer candles from the start
       const trend = Math.sin(i * 0.15) * 30;
       const volatility = Math.sin(i * 0.3) * 20 + Math.random() * 15;
       const open = this.basePrice + trend + (Math.random() - 0.5) * volatility;
       const close = open + (Math.random() - 0.5) * 10;
       
-      const wickExtension = Math.random() * 20 + 15; 
+      // Make candles much longer from the beginning
+      const wickExtension = Math.random() * 20 + 15; // Increased from 10+5 to 20+15
       const high = Math.max(open, close) + Math.random() * wickExtension;
       const low = Math.min(open, close) - Math.random() * wickExtension;
       
@@ -148,7 +149,7 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
     
     if (!parent) return;
     
-
+    // Set canvas size
     const dpr = window.devicePixelRatio || 1;
     const rect = parent.getBoundingClientRect();
     
@@ -273,7 +274,7 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
       const lastCandle = this.candles[this.candles.length - 1];
       const newX = lastCandle ? lastCandle.x + candleSpacing : width;
       
-      //  dramatic price movements with trends
+      // Create dramatic price movements with trends
       const trendPhase = this.time * 2;
       const majorTrend = Math.sin(trendPhase) * 30;
       const minorTrend = Math.sin(trendPhase * 3) * 15;
@@ -284,7 +285,7 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
       const closeChange = majorTrend * 0.1 + minorTrend * 0.05 + microVolatility * 0.1;
       const close = open + closeChange;
       
-      //  longer wicks for dramatic effect (matching initial candles)
+      // Create longer wicks for dramatic effect (matching initial candles)
       const volatility = 10 + Math.abs(Math.sin(this.time * 5)) * 20;
       const high = Math.max(open, close) + Math.random() * volatility + 5;
       const low = Math.min(open, close) - Math.random() * volatility - 5;
@@ -448,23 +449,20 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   onSubmit(): void {
-    if (!this.form.valid) {
-      this.form.markAllAsTouched();
-      return;
-    }
+    if (this.form.invalid) return;
     this.isLoading = true;
-    const req = this.form.value as RegisterRequest;
-    this.authService.register(req).subscribe({
-      next: user => {
-        console.log('Registered:', user);
+    this.authService.login(this.form.value).subscribe({
+      next: () => {
         this.isLoading = false;
-        this.success = true;
-        // TODO: navigate to dashboard
+        // navigate to dashboard
       },
-      error: err => {
-        console.error('Registration failed', err);
+      error: () => {
         this.isLoading = false;
+        console.error('Invalid email / password');
       }
     });
   }
+
+  
+  
 }
