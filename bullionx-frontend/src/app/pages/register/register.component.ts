@@ -442,7 +442,6 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
-  /** Toggle password visibility */
   togglePasswordVisibility(): void {
     this.showPassword = !this.showPassword;
   }
@@ -459,7 +458,6 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
         console.log('Registered:', user);
         this.isLoading = false;
         this.success = true;
-        // TODO: navigate to dashboard
       },
       error: err => {
         console.error('Registration failed', err);

@@ -1,0 +1,113 @@
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">
+            <div class="logo-icon"></div>
+            <span>TradeSim</span>
+        </div>
+        <div class="user-info">
+            <span id="userName">John Doe</span>
+            <div class="user-avatar" id="userAvatar">JD</div>
+        </div>
+    </header>
+
+    <!-- Main Dashboard -->
+    <div class="dashboard-container">
+        <!-- Trending Stocks Ticker -->
+        <div class="ticker-container">
+            <div class="ticker-header">📈 Trending Stocks</div>
+            <div class="ticker-wrapper">
+                <div class="ticker-content" id="tickerContent">
+                    <!-- Ticker items will be populated dynamically -->
+                </div>
+            </div>
+        </div>
+
+        <div class="grid-container">
+            <!-- Main Content -->
+            <main>
+                <!-- Portfolio Overview -->
+                <div class="card">
+                    <h2 class="card-header">Portfolio Overview</h2>
+                    <div class="portfolio-summary">
+                        <div class="metric-card">
+                            <div class="metric-label">Total Value</div>
+                            <div class="metric-value" id="totalValue">$125,430.50</div>
+                            <div class="metric-change positive">+$2,340.25 (+1.90%)</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">Day's Gain/Loss</div>
+                            <div class="metric-value positive" id="dayGain">+$1,245.80</div>
+                            <div class="metric-change positive">+1.01%</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">Total Gain/Loss</div>
+                            <div class="metric-value positive" id="totalGain">+$25,430.50</div>
+                            <div class="metric-change positive">+25.43%</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">Cash Balance</div>
+                            <div class="metric-value" id="cashBalance">$15,234.00</div>
+                            <div class="metric-change">Available to trade</div>
+                        </div>
+                    </div>
+
+                    <!-- Holdings -->
+                    <h3 style="margin: 2rem 0 1rem;">Your Holdings</h3>
+                    <table class="holdings-table">
+                        <thead>
+                            <tr>
+                                <th>Symbol</th>
+                                <th>Shares</th>
+                                <th>Price</th>
+                                <th>Total Value</th>
+                                <th>Change</th>
+                                <th>% Change</th>
+                            </tr>
+                        </thead>
+                        <tbody id="holdingsTableBody">
+                            <!-- Holdings will be populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- News Section -->
+                <div class="card">
+                    <h2 class="card-header">
+                        Market News
+                        <button class="btn btn-secondary">View All</button>
+                    </h2>
+                    <div id="newsContainer">
+                        <!-- News items will be populated dynamically -->
+                    </div>
+                </div>
+            </main>
+
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <!-- Watchlist -->
+                <div class="card">
+                    <h3 class="card-header">
+                        Watchlist
+                        <button class="btn btn-primary">+ Add</button>
+                    </h3>
+                    <div id="watchlistContainer">
+                        <!-- Watchlist items will be populated dynamically -->
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="card">
+                    <h3 class="card-header">Quick Actions</h3>
+                    <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                        <button class="btn btn-primary" style="width: 100%;">Buy Stock</button>
+                        <button class="btn btn-secondary" style="width: 100%;">Sell Stock</button>
+                        <button class="btn btn-secondary" style="width: 100%;">Market Research</button>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <script src="dashboard.js"></script>
+</body>
