@@ -2,6 +2,7 @@
 
 import { AuthService} from '../../core/services/auth.service';
 import { RegisterRequest } from '../../core/models/auth.models';
+import { Router } from '@angular/router';
 
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -38,7 +39,6 @@ export class LoginComponent implements OnInit, OnDestroy, AfterViewInit {
   showPassword: boolean = false;
   isMobile: boolean = false;
   success: boolean = false;
-  
   private ctx!: CanvasRenderingContext2D;
   private candles: Candle[] = [];
   private animationId?: number;
@@ -51,12 +51,10 @@ export class LoginComponent implements OnInit, OnDestroy, AfterViewInit {
   private scrollSpeed = 1.5; // Speed of continuous scrolling
   private lastCandleTime = 0;
   private animationStarted = false;
-
   constructor(private fb: FormBuilder,
-    private authService: AuthService) {
+    private authService: AuthService, private router: Router) {
     // Initialize the showPassword property
     this.showPassword = false;
-    
     this.form = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(10)]]
@@ -449,12 +447,14 @@ export class LoginComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   onSubmit(): void {
+    console.error('Invalid email / password');
     if (this.form.invalid) return;
+    console.error('Invalid email / password');
     this.isLoading = true;
     this.authService.login(this.form.value).subscribe({
       next: () => {
         this.isLoading = false;
-        // navigate to dashboard
+        this.router.navigateByUrl('/dashboard');
       },
       error: () => {
         this.isLoading = false;

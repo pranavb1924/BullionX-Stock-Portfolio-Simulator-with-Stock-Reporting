@@ -1,5 +1,6 @@
 import { AuthService} from '../../core/services/auth.service';
 import { RegisterRequest } from '../../core/models/auth.models';
+import { Router } from '@angular/router';
 
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
