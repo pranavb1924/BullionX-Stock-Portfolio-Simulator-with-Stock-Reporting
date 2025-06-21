@@ -57,12 +57,16 @@
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+            "proxyConfig": "proxy.conf.json"
+          },
           "configurations": {
             "production": {
               "buildTarget": "bullionx-frontend:build:production"
             },
             "development": {
-              "buildTarget": "bullionx-frontend:build:development"
+              "buildTarget": "bullionx-frontend:build:development",
+              "proxyConfig": "proxy.confg.json"
             }
           },
           "defaultConfiguration": "development"

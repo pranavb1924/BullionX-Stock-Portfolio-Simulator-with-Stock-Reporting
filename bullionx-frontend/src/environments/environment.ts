@@ -1,5 +1,6 @@
 export const environment = {
     production: false,
-    api: 'http://localhost:9000/api'
+    api: 'http://localhost:3000/api',
+    yahooQuoteUrl : '/api/quotes'
   };
   

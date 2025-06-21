@@ -15,12 +15,20 @@ html, body {
     border: none;    
   }
   
-  .watchlist-item-negative , .negative {
+  .holding-negative {
     color: #ff4444 !important;
     background-color: rgba(255, 0, 0, 0.1) !important; /* Visual indicator */
   }
   
-  .watchlist-item-positive , .positive {
+  .holding-positive {
     color: #00ff88 !important;
     background-color: rgba(0, 255, 0, 0.1) !important; /* Visual indicator */
+  }
+
+  .watchlist-item-positive {
+    color: #00ff88 !important;
+  }
+
+  .watchlist-item-negative{
+    color: #ff4444 !important;
   }
