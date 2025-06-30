@@ -89,6 +89,38 @@ public class QuotesProxyController {
                 .body(Map.of("quotes", result));
     }
 
+    @GetMapping(value = "/search", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> searchSymbols(@RequestParam String q) {
+        String url = UriComponentsBuilder
+                .fromHttpUrl("https://finnhub.io/api/v1/search")
+                .queryParam("q", q)
+                .queryParam("token", apiKey)
+                .toUriString();
+
+        try {
+            @SuppressWarnings("unchecked")
+            Map<String, Object> raw = rest.getForObject(url, Map.class);
+            // Finnhub returns { "count": 6, "result": [ { "symbol": "...", "description": "...", ... }, … ] }
+            // We’ll passthrough only the two fields Angular needs.
+            List<Map<String, String>> slim = ((List<Map<String, Object>>) raw.get("result"))
+                    .stream()
+                    .map(m -> Map.of(
+                            "symbol",      (String) m.get("symbol"),
+                            "description", (String) m.get("description")
+                    ))
+                    .toList();
+
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(slim);
+
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
+                    .body(Map.of("error", ex.getMessage()));
+        }
+    }
+
+
     private static class CachedQuote {
         final Map<String, Object> data;
         final Instant time;
