@@ -1,0 +1,59 @@
+<div class="search-container" [class.active]="isActive">
+  <!-- Input -->
+  <div class="search-input-wrapper">
+    <input
+      #searchInput
+      type="text"
+      class="search-input"
+      placeholder="Search stocks (e.g., AAPL, MSFT)…"
+      [(ngModel)]="searchQuery"
+      (input)="onSearch()"
+      (focus)="onFocus()"
+      (blur)="onBlur()" />
+
+    <div class="search-icon">
+      <svg width="16" height="16" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none">
+        <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
+      </svg>
+    </div>
+  </div>
+
+  <!-- Results -->
+  <div class="search-results"
+       *ngIf="isActive && (filteredStocks.length > 0 || searchQuery.length > 0)">
+
+    <div class="search-results-header" *ngIf="searchQuery.length > 0">
+      <span>{{ filteredStocks.length }} results for “{{ searchQuery }}”</span>
+    </div>
+
+    <div class="search-result-item"
+         *ngFor="let stock of filteredStocks"
+         (click)="selectStock(stock)">
+
+      <div class="stock-info">
+        <div class="stock-symbol">{{ stock.symbol }}</div>
+        <div class="stock-name">{{ stock.name }}</div>
+      </div>
+
+      <div class="stock-price-info">
+        <div class="stock-price">{{ formatCurrency(stock.price) }}</div>
+        <div class="stock-change"
+             [class.positive]="stock.change >= 0"
+             [class.negative]="stock.change < 0">
+          {{ formatChange(stock.changePercent, true) }}
+        </div>
+      </div>
+    </div>
+
+    <!-- No results -->
+    <div class="no-results"
+         *ngIf="searchQuery.length > 0 && filteredStocks.length === 0">
+      <div class="no-results-icon">📊</div>
+      <div class="no-results-text">No stocks found matching “{{ searchQuery }}”</div>
+      <div class="no-results-hint">Try symbols like AAPL, MSFT, or GOOGL</div>
+    </div>
+  </div>
+
+  <!-- Click-away overlay -->
+  <div class="search-overlay" *ngIf="isActive" (click)="closeSearch()"></div>
+</div>

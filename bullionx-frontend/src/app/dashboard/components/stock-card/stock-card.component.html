@@ -1,0 +1,75 @@
+<!-- Modal wrapper -->
+<div class="modal-overlay" *ngIf="isVisible" (click)="closeModal()">
+    <div class="stock-card" (click)="$event.stopPropagation()">
+      <!-- ───── Header ───── -->
+      <div class="card-header">
+        <div class="stock-header-info">
+          <h2 class="stock-symbol">{{ stock?.symbol }}</h2>
+          <p class="stock-name">{{ stock?.name }}</p>
+        </div>
+  
+        <button class="close-btn" (click)="closeModal()">
+          <svg width="24" height="24" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+      </div>
+  
+      <!-- ───── Price block ───── -->
+      <div class="price-section">
+        <div class="current-price">{{ formatCurrency(stock?.price || 0) }}</div>
+  
+        <div class="price-change"
+             [class.positive]="(stock?.change || 0) >= 0"
+             [class.negative]="(stock?.change || 0) < 0">
+          <span class="change-amount">{{ formatChange(stock?.change || 0) }}</span>
+          <span class="change-percent">({{ formatChange(stock?.changePercent || 0, true) }})</span>
+        </div>
+      </div>
+  
+      <!-- ───── Stats grid ───── -->
+      <div class="stats-grid">
+        <div class="stat-item">
+          <div class="stat-label">Day's Range</div>
+          <div class="stat-value">{{ dayRange }}</div>
+        </div>
+  
+        <div class="stat-item">
+          <div class="stat-label">Market Cap</div>
+          <div class="stat-value">{{ marketCap }}</div>
+        </div>
+  
+        <div class="stat-item">
+          <div class="stat-label">Volume</div>
+          <div class="stat-value">{{ volume }}</div>
+        </div>
+  
+        <div class="stat-item">
+          <div class="stat-label">P/E Ratio</div>
+          <div class="stat-value">{{ peRatio }}</div>
+        </div>
+      </div>
+  
+      <!-- ───── Action buttons ───── -->
+      <div class="action-buttons">
+        <button class="btn btn-secondary" (click)="viewDetails()">View Details</button>
+  
+        <button class="btn btn-primary"
+                [disabled]="isInWatchlist || isWatchlistFull"
+                (click)="addToWatchlist()">
+          <ng-container *ngIf="!isInWatchlist && !isWatchlistFull">+ Add to Watchlist</ng-container>
+          <ng-container *ngIf="isInWatchlist">✓ In Watchlist</ng-container>
+          <ng-container *ngIf="!isInWatchlist && isWatchlistFull">Watchlist Full (5/5)</ng-container>
+        </button>
+      </div>
+  
+      <!-- ───── Watch-list banner ───── -->
+      <div class="watchlist-status" *ngIf="isInWatchlist">
+        <div class="status-icon">✓</div>
+        <span>This stock is already in your watchlist</span>
+        <button class="remove-btn" (click)="removeFromWatchlist()">Remove</button>
+      </div>
+    </div>
+  </div>
+  

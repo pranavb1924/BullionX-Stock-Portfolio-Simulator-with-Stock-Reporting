@@ -5,15 +5,12 @@
       <span>TradeSim</span>
     </div>
   
-    <!-- Reactive user info -->
     <div class="user-info" *ngIf="user$ | async as user; else guest">
       <span id="userName">{{ user.firstName }} {{ user.lastName }}</span>
       <div class="user-avatar" id="userAvatar">
         {{ user.firstName[0] }}{{ user.lastName[0] }}
       </div>
     </div>
-  
-    <!-- Fallback (shouldn’t appear once guards are in place) -->
     <ng-template #guest>
       <div class="user-info">
         <span id="userName">Guest</span>
@@ -24,60 +21,15 @@
   
   <!-- Main Dashboard -->
   <div class="dashboard-container">
-    <!-- Trending Stocks Ticker -->
-    <div class="ticker-container">
-      <div class="ticker-header">📈 Trending Stocks</div>
-      <div class="ticker-wrapper">
-        <div class="ticker-content" id="tickerContent"></div>
-      </div>
-    </div>
+    <app-ticker [symbols]="trendingStocks"></app-ticker>
   
     <div class="grid-container">
-      <!-- Main Content -->
       <main>
-        <!-- Portfolio Overview -->
-        <div class="card">
-          <h2 class="card-header">Portfolio Overview</h2>
-          <div class="portfolio-summary">
-            <div class="metric-card">
-              <div class="metric-label">Total Value</div>
-              <div class="metric-value" id="totalValue">$125,430.50</div>
-              <div class="metric-change positive">+$2,340.25 (+1.90%)</div>
-            </div>
-            <div class="metric-card">
-              <div class="metric-label">Day's Gain/Loss</div>
-              <div class="metric-value positive" id="dayGain">+$1,245.80</div>
-              <div class="metric-change positive">+1.01%</div>
-            </div>
-            <div class="metric-card">
-              <div class="metric-label">Total Gain/Loss</div>
-              <div class="metric-value positive" id="totalGain">+$25,430.50</div>
-              <div class="metric-change positive">+25.43%</div>
-            </div>
-            <div class="metric-card">
-              <div class="metric-label">Cash Balance</div>
-              <div class="metric-value" id="cashBalance">$15,234.00</div>
-              <div class="metric-change">Available to trade</div>
-            </div>
-          </div>
+        <app-portfolio-summary
+          [summary]="dash.calculateMetrics()"
+          [holdings]="dash.holdings">
+        </app-portfolio-summary>
   
-          <!-- Holdings -->
-          <h3 style="margin: 2rem 0 1rem;">Your Holdings</h3>
-          <table class="holdings-table">
-            <thead>
-            <tr>
-              <th>Symbol</th>
-              <th>Shares</th>
-              <th>Price</th>
-              <th>Total Value</th>
-              <th>Change</th>
-              <th>% Change</th>
-            </tr>
-            </thead>
-            <tbody id="holdingsTableBody"></tbody>
-          </table>
-        </div>
-        <!-- News Section -->
         <div class="card">
           <h2 class="card-header">
             Market News
@@ -87,18 +39,25 @@
         </div>
       </main>
   
-      <!-- Sidebar -->
       <aside class="sidebar">
-        <!-- Watchlist -->
+        <div class="card">
+          <h3 class="card-header">Add to Watchlist</h3>
+          <app-stock-search
+            [availableStocks]="dash.getAllAvailableStocks()"
+            (stockSelected)="onStockSelected($event)">
+          </app-stock-search>
+        </div>
+  
         <div class="card">
           <h3 class="card-header">
             Watchlist
-            <button class="btn btn-primary">+ Add</button>
+            <span class="watchlist-counter">
+              {{ dash.getWatchlistCount() }}/{{ dash.getMaxWatchlistSize() }}
+            </span>
           </h3>
           <div id="watchlistContainer"></div>
         </div>
   
-        <!-- Quick Actions -->
         <div class="card">
           <h3 class="card-header">Quick Actions</h3>
           <div style="display: flex; flex-direction: column; gap: 0.75rem;">
@@ -110,4 +69,16 @@
       </aside>
     </div>
   </div>
+  
+  <!-- Stock Card Modal -->
+  <app-stock-card
+    [stock]="selectedStock"
+    [isVisible]="showStockCard"
+    [isInWatchlist]="isSelectedStockInWatchlist"
+    [isWatchlistFull]="dash.isWatchlistFull()"
+    (close)="closeStockCard()"
+    (addToWatchlistEvent)="onAddToWatchlist($event)"
+    (removeFromWatchlistEvent)="onRemoveFromWatchlist($event)"
+    (viewDetailsEvent)="onViewDetails($event)">
+  </app-stock-card>
   

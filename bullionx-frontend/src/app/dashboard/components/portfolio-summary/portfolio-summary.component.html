@@ -1,0 +1,47 @@
+<!-- carrot = ▼/▲ icon -->
+<div class="card" (click)="toggle()">
+    <h2 class="card-header">
+      Portfolio Overview
+      <span style="font-size:0.8rem;">{{ expanded ? '▲' : '▼' }}</span>
+    </h2>
+  
+    <!-- ——— 4 metric cards ——— -->
+    <div class="portfolio-summary">
+      <div class="metric-card">
+        <div class="metric-label">Total Value</div>
+        <div class="metric-value">{{ summary.totalValue | currency }}</div>
+      </div>
+      <!-- repeat for day gain / total gain / cash balance … -->
+    </div>
+  
+    <!-- ——— expandable holdings ——— -->
+    <div *ngIf="expanded" style="margin-top:1.5rem;">
+      <h3 style="margin-bottom:.75rem;">Your Holdings</h3>
+  
+      <table class="holdings-table">
+        <thead>
+          <tr>
+            <th>Symbol</th><th>Shares</th><th>Price</th>
+            <th>Total Value</th><th>Change</th><th>% Change</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let s of holdings">
+            <td>{{ s.symbol }}</td>
+            <td>{{ s.shares }}</td>
+            <td>{{ s.price  | currency }}</td>
+            <td>{{ (s.price*(s.shares||0)) | currency }}</td>
+            <td [class.positive]="s.change>=0"
+                [class.negative]="s.change<0">
+                {{ s.change | number:'1.2-2' }}
+            </td>
+            <td [class.positive]="s.changePercent>=0"
+                [class.negative]="s.changePercent<0">
+                {{ s.changePercent | number:'1.2-2' }} %
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  

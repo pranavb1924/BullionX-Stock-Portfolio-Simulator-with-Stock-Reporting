@@ -1,7 +1,7 @@
-/* src/app/core/services/dashboard.service.ts */
+/* src/app/core/services/dashboard.service.ts - Updated with Watchlist Management */
 import { Injectable, OnDestroy }         from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Subscription }                  from 'rxjs';
+import { Subscription, BehaviorSubject } from 'rxjs';
 
 import { AuthService }                   from './auth.service';
 import { environment }                   from '../../../environments/environment';
@@ -34,11 +34,38 @@ export interface PortfolioMetrics {
 export class DashboardService implements OnDestroy {
 
   /* ---------- demo / fallback data ---------- */
-  private holdings: Stock[] = [
+  public holdings: Stock[] = [
     { symbol: 'AAPL', name: 'Apple Inc.', price: 0, change: 0, changePercent: 0, shares: 50 }
   ];
-  private trendingStocks: Stock[] = [];
+  public trendingStocks: Stock[] = [ 
+    { "symbol": "AAPL", "name": "Apple Inc.", "price": 208.14, "change": 1.45, "changePercent": 0.70 },
+    { "symbol": "TSLA", "name": "Tesla Inc.", "price": 353.38, "change": 31.22, "changePercent": 9.69 },
+    { "symbol": "HIMS", "name": "Hims & Hers Health, Inc.", "price": 43.89, "change": -20.35, "changePercent": -31.68 },
+    { "symbol": "LCID", "name": "Lucid Group, Inc.", "price": 2.17, "change": -0.02, "changePercent": -0.91 },
+    { "symbol": "NVDA", "name": "NVIDIA Corporation", "price": 144.38, "change": 0.53, "changePercent": 0.37 },
+    { "symbol": "AMD", "name": "Advanced Micro Devices, Inc.", "price": 129.74, "change": 1.49, "changePercent": 1.16 },
+    { "symbol": "INTC", "name": "Intel Corporation", "price": 21.12, "change": 0.04, "changePercent": 0.19 },
+    { "symbol": "PLTR", "name": "Palantir Technologies Inc.", "price": 140.12, "change": 2.82, "changePercent": 2.05 },
+    { "symbol": "NU", "name": "Nu Holdings Ltd.", "price": 12.22, "change": 0.08, "changePercent": 0.66 },
+    { "symbol": "F", "name": "Ford Motor Company", "price": 10.72, "change": 0.13, "changePercent": 1.23 },
+    { "symbol": "AAL", "name": "American Airlines Group Inc.", "price": 10.41, "change": -0.21, "changePercent": -1.97 },
+    { "symbol": "SMCI", "name": "Super Micro Computer, Inc.", "price": 43.08, "change": -2.24, "changePercent": -4.94 },
+    { "symbol": "RKLB", "name": "Rocket Lab USA, Inc.", "price": 32.34, "change": 2.30, "changePercent": 7.66 },
+    { "symbol": "SOFI", "name": "SoFi Technologies, Inc.", "price": 15.07, "change": -0.13, "changePercent": -0.85 },
+    { "symbol": "GOOGL", "name": "Alphabet Inc.", "price": 162.91, "change": -3.73, "changePercent": -2.24 },
+    { "symbol": "AMZN", "name": "Amazon.com, Inc.", "price": 209.91, "change": 0.22, "changePercent": 0.10 },
+    { "symbol": "META", "name": "Meta Platforms, Inc.", "price": 695.77, "change": 13.42, "changePercent": 1.96 },
+    { "symbol": "NFLX", "name": "Netflix, Inc.", "price": 1248.51, "change": 17.13, "changePercent": 1.39 },
+    { "symbol": "COST", "name": "Costco Wholesale Corporation", "price": 997.54, "change": 17.25, "changePercent": 1.76 },
+    { "symbol": "WMT", "name": "Walmart Inc.", "price": 96.93, "change": 0.82, "changePercent": 0.85 },
+    { "symbol": "MSFT", "name": "Microsoft Corporation", "price": 487.01, "change": 9.61, "changePercent": 2.01 }
+  ];
+
+  // Watchlist management
   private watchlist: Stock[] = [];
+  private watchlistSubject = new BehaviorSubject<Stock[]>([]);
+  public watchlist$ = this.watchlistSubject.asObservable();
+  private readonly MAX_WATCHLIST_SIZE = 5;
 
   private news: NewsItem[] = [
     { time: '10 : 30', title: 'Markets open higher on earnings beat', source: 'Reuters' },
@@ -50,7 +77,10 @@ export class DashboardService implements OnDestroy {
   private updateInterval?: number;           // id returned by setInterval
 
   constructor(private auth: AuthService,
-              private http: HttpClient) {}
+              private http: HttpClient) {
+    // Load watchlist from localStorage on service initialization
+    this.loadWatchlistFromStorage();
+  }
 
   /* ───────────── lifecycle from component ───────────── */
   public init(): void {
@@ -70,6 +100,101 @@ export class DashboardService implements OnDestroy {
   }
 
   ngOnDestroy(): void { this.destroy(); }
+
+  /* ───────────── WATCHLIST MANAGEMENT ───────────── */
+  public addToWatchlist(stock: Stock): boolean {
+    if (this.watchlist.length >= this.MAX_WATCHLIST_SIZE) {
+      console.warn('Watchlist is full. Maximum 5 stocks allowed.');
+      return false;
+    }
+
+    if (this.isInWatchlist(stock.symbol)) {
+      console.warn(`${stock.symbol} is already in watchlist.`);
+      return false;
+    }
+
+    this.watchlist.push({ ...stock });
+    this.saveWatchlistToStorage();
+    this.watchlistSubject.next([...this.watchlist]);
+    this.renderWatchlist();
+    
+    console.log(`Added ${stock.symbol} to watchlist.`);
+    return true;
+  }
+
+  public removeFromWatchlist(symbol: string): boolean {
+    const index = this.watchlist.findIndex(stock => stock.symbol === symbol);
+    if (index === -1) {
+      console.warn(`${symbol} not found in watchlist.`);
+      return false;
+    }
+
+    this.watchlist.splice(index, 1);
+    this.saveWatchlistToStorage();
+    this.watchlistSubject.next([...this.watchlist]);
+    this.renderWatchlist();
+    
+    console.log(`Removed ${symbol} from watchlist.`);
+    return true;
+  }
+
+  public isInWatchlist(symbol: string): boolean {
+    return this.watchlist.some(stock => stock.symbol === symbol);
+  }
+
+  public isWatchlistFull(): boolean {
+    return this.watchlist.length >= this.MAX_WATCHLIST_SIZE;
+  }
+
+  public getWatchlist(): Stock[] {
+    return [...this.watchlist];
+  }
+
+  public getWatchlistCount(): number {
+    return this.watchlist.length;
+  }
+
+  public getMaxWatchlistSize(): number {
+    return this.MAX_WATCHLIST_SIZE;
+  }
+
+  private saveWatchlistToStorage(): void {
+    try {
+      localStorage.setItem('tradesim_watchlist', JSON.stringify(this.watchlist));
+    } catch (error) {
+      console.error('Failed to save watchlist to localStorage:', error);
+    }
+  }
+
+  private loadWatchlistFromStorage(): void {
+    try {
+      const saved = localStorage.getItem('tradesim_watchlist');
+      if (saved) {
+        this.watchlist = JSON.parse(saved);
+        this.watchlistSubject.next([...this.watchlist]);
+      }
+    } catch (error) {
+      console.error('Failed to load watchlist from localStorage:', error);
+      this.watchlist = [];
+    }
+  }
+
+  /* ───────────── SEARCH FUNCTIONALITY ───────────── */
+  public searchStocks(query: string): Stock[] {
+    if (!query.trim()) {
+      return this.trendingStocks.slice(0, 10);
+    }
+
+    const searchQuery = query.toLowerCase();
+    return this.trendingStocks.filter(stock => 
+      stock.symbol.toLowerCase().includes(searchQuery) || 
+      stock.name.toLowerCase().includes(searchQuery)
+    );
+  }
+
+  public getAllAvailableStocks(): Stock[] {
+    return this.trendingStocks;
+  }
 
   /* ───────────── helpers ───────────── */
   private getUniqueSymbols(): string[] {
@@ -207,6 +332,17 @@ export class DashboardService implements OnDestroy {
   /* ---------- watch-list ---------- */
   private renderWatchlist(): void {
     const el=document.getElementById('watchlistContainer'); if(!el)return;
+    if (this.watchlist.length === 0) {
+      el.innerHTML = `
+        <div class="empty-watchlist">
+          <div class="empty-icon">👁️</div>
+          <div class="empty-text">Your watchlist is empty</div>
+          <div class="empty-hint">Add stocks to track their performance</div>
+        </div>
+      `;
+      return;
+    }
+
     el.innerHTML=this.watchlist.map(s=>{
       const cls=s.change>=0?'positive':'negative';
       return `<div class="watchlist-item">
@@ -218,7 +354,14 @@ export class DashboardService implements OnDestroy {
           <div>${this.formatCurrency(s.price)}</div>
           <div class="${cls}" style="font-size:.875rem;">
             ${this.formatChange(s.changePercent,true)}</div>
-        </div></div>`;
+        </div>
+        <button class="remove-stock-btn" onclick="window.removeFromWatchlist?.('${s.symbol}')" title="Remove from watchlist">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>`;
     }).join('');
   }
 
@@ -234,7 +377,7 @@ export class DashboardService implements OnDestroy {
   }
 
   /* ---------- metrics ---------- */
-  private calculateMetrics(): PortfolioMetrics {
+  public calculateMetrics(): PortfolioMetrics {
     const port=this.holdings.reduce((s,x)=>s+x.price*(x.shares??0),0);
     const cash=15_234;
     const total=port+cash;
@@ -260,6 +403,11 @@ export class DashboardService implements OnDestroy {
 
   /* ---------- misc ---------- */
   private setupEventListeners():void{
+    // Global function for removing from watchlist (used in rendered HTML)
+    (window as any).removeFromWatchlist = (symbol: string) => {
+      this.removeFromWatchlist(symbol);
+    };
+
     document.querySelectorAll('.btn').forEach(b=>{
       b.addEventListener('click',e=>{
         console.log('Button clicked →',

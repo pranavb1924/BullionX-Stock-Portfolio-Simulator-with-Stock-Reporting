@@ -1,0 +1,22 @@
+<p>ticker works!</p>
+<div class="ticker-container">
+    <div class="ticker-header">📈 Trending Stocks</div>
+  
+    <div class="ticker-wrapper">
+      <div class="ticker-content">
+        <div
+          class="ticker-item"
+          *ngFor="let s of symbols; trackBy: track"
+          [class.positive]="s.change >= 0"
+          [class.negative]="s.change < 0">
+  
+          <span class="ticker-symbol">{{ s.symbol }}</span>
+          <span>{{ s.price | number : '1.2-2' }}</span>
+          <span style="margin-left: .5rem;">
+            {{ s.changePercent  | number:'1.2-2' }}%
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+  
